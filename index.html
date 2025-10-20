@@ -1,509 +1,470 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Special Diwali Wish for You!</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,400..900&family=Dancing+Script:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
-
-    <style>
-        /* General Styles */
-        :root {
-            --bg-dark: #020208;
-            --bg-light: #1a1a2e;
-            --diya-base: #8b4513;
-            --diya-highlight: #b55e00;
-            --flame-yellow: #FFD700;
-            --flame-orange: #ffac41;
-            --flame-red: #ff4500;
-            --text-light: #f0e6d2;
-            --text-gold: #FFD700;
-        }
-
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-dark);
-            color: var(--text-light);
-            overflow: hidden;
-            transition: background-color 3s ease-in-out;
-            position: relative;
-        }
-
-        /* Animated Starry Background */
-        #star-field {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0;
-            transition: opacity 3s ease-in-out;
-        }
-
-        body.light #star-field {
-            opacity: 1;
-        }
-        
-        /* Main Content Container */
-        .container {
-            text-align: center;
-            z-index: 10;
-            position: relative;
-            padding: 20px;
-            max-width: 95%;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Instructions */
-        #instructions {
-            font-size: 1.5rem;
-            font-weight: 300;
-            color: #ccc;
-            margin-bottom: 40px;
-            opacity: 1;
-            transition: opacity 1s ease, transform 1s ease;
-            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
-            transform: translateY(0);
-        }
-        body.light #instructions {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-
-        /* Diya Container */
-        .diya-container {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 40px;
-            margin: 60px 0;
-            perspective: 1000px;
-        }
-
-        /* More Realistic Diya Styling */
-        .diya {
-            width: 110px;
-            height: 65px;
-            background: radial-gradient(ellipse at top, var(--diya-highlight) 0%, var(--diya-base) 80%, #5a2e00 100%);
-            border-radius: 50% / 100% 100% 0 0;
-            position: relative;
-            cursor: pointer;
-            opacity: 0.8;
-            transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: inset 0 -10px 15px rgba(0, 0, 0, 0.7), 0 5px 20px rgba(0, 0, 0, 0.6);
-            transform: scale(0.95) rotateY(-10deg);
-        }
-        .diya:hover {
-            transform: translateY(-10px) scale(1.05) rotateY(0deg);
-            box-shadow: inset 0 -10px 15px rgba(0, 0, 0, 0.7), 0 12px 30px rgba(0, 0, 0, 0.8);
-        }
-
-        .diya::before { /* Wick Base */
-            content: '';
-            position: absolute;
-            top: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 22px;
-            background: linear-gradient(to top, #4a4a4a 0%, #2a2a2a 100%);
-            border-radius: 4px 4px 0 0;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-            transition: all 0.5s ease;
-        }
-
-        /* Lit Diya State - More Realistic Flame and Glow */
-        .diya.lit {
-            opacity: 1;
-            transform: scale(1) rotateY(0deg);
-            box-shadow: inset 0 -8px 15px rgba(0, 0, 0, 0.7),
-                        0 0 35px rgba(255, 165, 0, 0.8),
-                        0 0 65px rgba(255, 140, 0, 0.6);
-        }
-        .diya.lit::before { /* Flame */
-            background: transparent; /* Wick disappears into flame */
-            box-shadow: none;
-        }
-        
-        .flame {
-            position: absolute;
-            width: 22px;
-            height: 50px;
-            bottom: 30px;
-            left: 50%;
-            transform-origin: 50% 100%;
-            transform: translateX(-50%);
-            background: radial-gradient(circle at 50% 90%, var(--flame-yellow) 10%, var(--flame-orange) 60%, var(--flame-red) 95%);
-            border-radius: 50% 50% 20% 20%;
-            filter: blur(2px) brightness(1.2);
-            box-shadow: 0 0 15px var(--flame-yellow), 
-                        0 0 30px var(--flame-orange), 
-                        0 0 50px var(--flame-red),
-                        0 0 80px rgba(255, 215, 0, 0.5);
-            animation: subtle-flicker 1.5s infinite alternate ease-in-out;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-        
-        .diya.lit .flame {
-            opacity: 1;
-        }
-
-        @keyframes subtle-flicker {
-            0% { transform: translateX(-50%) scale(1, 1); }
-            50% { transform: translateX(-45%) scale(1.05, 0.95); }
-            100% { transform: translateX(-55%) scale(0.98, 1.02); }
-        }
-
-        /* --- Rangoli SVG Styling --- */
-        #rangoli-svg {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 90vmin;
-            height: 90vmin;
-            max-width: 500px;
-            max-height: 500px;
-            z-index: 8;
-            opacity: 0;
-            transition: opacity 1s ease-in;
-        }
-
-        body.rangoli-active #rangoli-svg {
-            opacity: 0.8;
-        }
-
-        #rangoli-svg path {
-            fill: none;
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-        }
-        
-        body.rangoli-active #rangoli-svg .path1 { animation: draw-rangoli 4s ease-out 0.5s forwards; stroke: #ff5733; }
-        body.rangoli-active #rangoli-svg .path2 { animation: draw-rangoli 4s ease-out 1s forwards; stroke: #33ff57; }
-        body.rangoli-active #rangoli-svg .path3 { animation: draw-rangoli 4s ease-out 1.5s forwards; stroke: #3357ff; }
-        body.rangoli-active #rangoli-svg .path4 { animation: draw-rangoli 4s ease-out 2s forwards; stroke: #ff33a1; }
-
-
-        @keyframes draw-rangoli {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-
-
-        /* Wish Message Styling */
-        #wish-message {
-            opacity: 0;
-            transform: translate(-50%, -50%) translateY(50px) scale(0.9);
-            transition: opacity 2s ease, transform 2s ease;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            width: 90%;
-            max-width: 750px;
-            padding: 40px;
-            background: rgba(10, 5, 20, 0.5);
-            backdrop-filter: blur(12px) saturate(150%);
-            -webkit-backdrop-filter: blur(12px) saturate(150%);
-            border-radius: 20px;
-            box-shadow: 0 0 60px rgba(255, 180, 0, 0.8), inset 0 0 20px rgba(255, 215, 0, 0.2);
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-            pointer-events: none;
-            border: 1px solid rgba(255, 215, 0, 0.3);
-            z-index: 100;
-        }
-        #wish-message.visible {
-            opacity: 1;
-            transform: translate(-50%, -50%) translateY(0) scale(1);
-        }
-
-        #wish-message h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: clamp(2.5rem, 10vw, 5rem);
-            color: var(--text-gold);
-            margin-bottom: 20px;
-            text-shadow: 0 0 15px var(--text-gold), 0 0 25px var(--flame-orange);
-            letter-spacing: 2px;
-        }
-
-        #wish-message p {
-            font-family: 'Playfair Display', serif;
-            font-size: clamp(1rem, 4vw, 1.5rem);
-            line-height: 1.8;
-            color: #fcefdc;
-            margin: 25px auto 35px;
-            max-width: 600px;
-        }
-
-        #wish-message h3 {
-            font-family: 'Dancing Script', cursive;
-            font-size: clamp(1.5rem, 6vw, 2.5rem);
-            color: var(--flame-orange);
-            margin-top: 30px;
-            text-shadow: 0 0 15px var(--flame-orange);
-        }
-        
-        /* Dynamic JS-Powered Fireworks */
-        #fireworks-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 5;
-            pointer-events: none;
-            display: none; /* Hidden by default */
-        }
-        
-        body.fireworks-active #fireworks-container {
-            display: block;
-        }
-
-        .particle {
-            position: absolute;
-            border-radius: 50%;
-            opacity: 1;
-        }
-
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Diwali — The Light Unlock</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+<style>
+  :root{
+    --bg-dark:#02030a;
+    --soft-white:#f7efe6;
+    --gold: #ffd166;
+    --warm: #ff8a00;
+    --muted: rgba(255,255,255,0.06);
+    --glass: rgba(255,255,255,0.04);
+    --card-bg: rgba(10,8,12,0.6);
+  }
+  html,body{height:100%;margin:0;font-family:'Poppins',sans-serif;background:var(--bg-dark);color:var(--soft-white);-webkit-font-smoothing:antialiased;}
+  .stage{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:28px;}
+  /* Star backdrop */
+  #stars {position:absolute;inset:0;z-index:0}
+  /* Center container */
+  .center {z-index:10; width:100%; max-width:980px; text-align:center; pointer-events:none;}
+  h1.title{font-family:'Dancing Script',cursive;color:var(--gold);font-size:3.2rem;margin:6px 0 12px;text-shadow:0 6px 30px rgba(255,165,0,0.08);}
+  p.lead{margin:0 0 18px;color:#eae2d6;opacity:0.95;font-size:1.02rem;pointer-events:auto;}
+  /* diya container */
+  .diya-wrap{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;pointer-events:auto;margin-top:26px}
+  .diya{width:110px;height:70px;background:radial-gradient(ellipse at top,var(--warm) 0%, #8b4513 70%, #4d2a00 100%);border-radius:48%/60% 60% 40% 40%;position:relative;display:flex;align-items:flex-start;justify-content:center;box-shadow:inset 0 -8px 20px rgba(0,0,0,0.7),0 8px 26px rgba(0,0,0,0.6);transform:translateY(0);transition:transform .32s cubic-bezier(.2,.9,.2,1),box-shadow .32s;cursor:pointer;touch-action:manipulation;}
+  .diya:active{transform:translateY(3px)}
+  .diya .wick{position:absolute;top:-18px;width:10px;height:18px;background:#222;border-radius:3px;box-shadow:inset 0 2px 3px rgba(255,255,255,0.03)}
+  .flame{position:absolute;width:22px;height:44px;bottom:28px;left:50%;transform:translateX(-50%);border-radius:50% 50% 30% 30%;background:radial-gradient(circle at 50% 90%, #fff38a 10%, #ffb34d 50%, #ff6a3d 90%);filter:blur(1px);box-shadow:0 0 18px rgba(255,160,60,0.35),0 0 40px rgba(255,120,40,0.12);opacity:0;transition:opacity .36s}
+  .diya.lit{box-shadow:inset 0 -6px 14px rgba(0,0,0,0.6),0 18px 60px rgba(255,120,40,0.12);transform:translateY(-10px) scale(1.02)}
+  .diya.lit .flame{opacity:1;animation:flicker 1400ms infinite ease-in-out alternate}
+  @keyframes flicker{0%{transform:translateX(-50%) scale(.95,1)}50%{transform:translateX(-48%) scale(1.05,.96)}100%{transform:translateX(-52%) scale(.98,1.02)}}
+  /* glow overlay */
+  .glow{position:fixed;inset:0;z-index:4;pointer-events:none;background:radial-gradient(ellipse at center, rgba(255,160,40,0.06), transparent 25%), radial-gradient(ellipse at 10% 10%, rgba(255,210,120,0.02), transparent 20%) ;mix-blend-mode:screen}
+  /* hidden mandala + fireworks stage */
+  .celebrate{position:fixed;inset:0;z-index:6;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  canvas#mandala{width:min(700px,86vmin);height:min(700px,86vmin);max-width:720px;max-height:720px;opacity:0;transform:scale(.85);transition:opacity .9s ease, transform .9s ease;filter:drop-shadow(0 12px 40px rgba(0,0,0,0.6))}
+  .celebrate.active canvas#mandala{opacity:1;transform:scale(1)}
+  #fireworks-canvas{position:absolute;inset:0;pointer-events:none;z-index:5}
+  /* code panel */
+  .panel{margin-top:28px;display:flex;align-items:center;justify-content:center;gap:12px;pointer-events:auto}
+  .input-wrap{background:var(--card-bg);border:1px solid rgba(255,255,255,0.05);padding:12px 14px;border-radius:12px;display:flex;gap:8px;align-items:center;backdrop-filter:blur(6px);box-shadow:0 6px 30px rgba(0,0,0,0.6)}
+  input.code{background:transparent;border:none;outline:none;color:var(--soft-white);font-size:1rem;padding:6px 6px;text-transform:none}
+  button.btn{background:linear-gradient(90deg,#ffb84d,#ff8a4d);border:none;padding:10px 14px;border-radius:10px;color:#111;font-weight:600;cursor:pointer;box-shadow:0 8px 30px rgba(255,140,40,0.12);transition:transform .14s}
+  button.btn:active{transform:translateY(2px)}
+  .message-card{margin-top:22px;max-width:780px;margin-left:auto;margin-right:auto;background:linear-gradient(180deg, rgba(10,6,10,0.75), rgba(6,4,6,0.6));padding:28px;border-radius:16px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 16px 80px rgba(0,0,0,0.6);opacity:0;transform:translateY(12px) scale(.995);transition:opacity .7s ease, transform .7s}
+  .message-card.show{opacity:1;transform:none}
+  .msg-title{font-family:'Dancing Script',cursive;font-size:2.4rem;color:var(--gold)}
+  .msg-body{font-family:'Playfair Display',serif;color:#fff3e9;line-height:1.6;margin-top:12px;font-size:1.05rem;text-align:left}
+  .signature{margin-top:18px;font-weight:600;color:rgba(255,230,200,0.95);text-align:right}
+  /* small helpers */
+  .muted{color:rgba(255,255,255,0.55);font-size:0.92rem}
+  .controls{margin-top:14px;display:flex;gap:10px;justify-content:center}
+  .link-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 12px;border-radius:10px;color:var(--soft-white);cursor:pointer}
+  /* responsiveness */
+  @media (max-width:640px){
+    .diya{width:86px;height:56px}
+    h1.title{font-size:2.4rem}
+    .msg-body{font-size:1rem}
+    .input-wrap{padding:10px}
+  }
+</style>
 </head>
 <body>
-    <canvas id="star-field"></canvas>
-    <div id="fireworks-container"></div>
-    
-    <svg id="rangoli-svg" viewBox="0 0 400 400">
-        <!-- A simple geometric Rangoli design -->
-        <defs>
-            <path id="petal" d="M200 10 C 250 50, 250 150, 200 190 C 150 150, 150 50, 200 10 Z" />
-        </defs>
-        <g class="path1">
-            <circle cx="200" cy="200" r="100" />
-            <circle cx="200" cy="200" r="80" />
-        </g>
-        <g class="path2">
-            <use href="#petal" transform="rotate(0 200 200)" />
-            <use href="#petal" transform="rotate(90 200 200)" />
-            <use href="#petal" transform="rotate(180 200 200)" />
-            <use href="#petal" transform="rotate(270 200 200)" />
-        </g>
-        <g class="path3">
-            <use href="#petal" transform="rotate(45 200 200) scale(0.7)" />
-            <use href="#petal" transform="rotate(135 200 200) scale(0.7)" />
-            <use href="#petal" transform="rotate(225 200 200) scale(0.7)" />
-            <use href="#petal" transform="rotate(315 200 200) scale(0.7)" />
-        </g>
-         <g class="path4">
-            <circle cx="200" cy="200" r="30" />
-        </g>
-    </svg>
+<div class="stage">
+  <canvas id="stars"></canvas>
 
-    <div class="container">
-        <p id="instructions">Light the path to joy, click each diya...</p>
-        
-        <div class="diya-container">
-            <div class="diya"></div>
-            <div class="diya"></div>
-            <div class="diya"></div>
-            <div class="diya"></div>
-            <div class="diya"></div>
-        </div>
+  <div class="center" role="main">
+    <h1 class="title">Happy Diwali</h1>
+    <p class="lead">Light all the diyas to reveal the rangoli and fireworks — then enter your Diwali code to see your message.</p>
 
-        <div id="wish-message">
-            <h1>Happy Diwali!</h1>
-            <p>
-                My Friend,
-                <br><br>
-                On this Diwali, as these lamps push back the darkness, I'm reminded of the incredible light you bring into my world. For me, the real festival isn't just the fireworks in the sky, but the warmth of the bond we share.
-                <br><br>
-                I hope this festival ignites a new spark of inspiration in you, fills your heart with pure happiness, and lights up the path to all your dreams. Wishing you a Diwali that's as genuinely bright and beautiful as you are.
-            </p>
-            <h3>Your friend, <br> Aman Balara</h3>
-        </div>
+    <div class="diya-wrap" aria-hidden="false" id="diyaWrap">
+      <!-- We'll render 5 diyas -->
+      <div class="diya" data-index="0" tabindex="0" aria-label="diya 1"><div class="wick"></div><div class="flame"></div></div>
+      <div class="diya" data-index="1" tabindex="0" aria-label="diya 2"><div class="wick"></div><div class="flame"></div></div>
+      <div class="diya" data-index="2" tabindex="0" aria-label="diya 3"><div class="wick"></div><div class="flame"></div></div>
+      <div class="diya" data-index="3" tabindex="0" aria-label="diya 4"><div class="wick"></div><div class="flame"></div></div>
+      <div class="diya" data-index="4" tabindex="0" aria-label="diya 5"><div class="wick"></div><div class="flame"></div></div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const diyas = document.querySelectorAll('.diya');
-            const instructions = document.getElementById('instructions');
-            const wishMessage = document.getElementById('wish-message');
-            const body = document.body;
-            const fireworksContainer = document.getElementById('fireworks-container');
-            const starField = document.getElementById('star-field');
-            const starCtx = starField.getContext('2d');
+    <div class="panel" id="panel" style="opacity:0;transform:translateY(12px);transition:opacity .6s, transform .6s;">
+      <div class="input-wrap">
+        <input class="code" id="codeInput" placeholder="Enter Diwali code (e.g. IITD)" autocomplete="off">
+        <button class="btn" id="unlockBtn">Unlock</button>
+      </div>
+    </div>
 
-            let litCount = 0;
-            const totalDiyas = diyas.length;
-            let audioStarted = false;
-            
-            // --- Audio Setup (Tone.js) ---
-            const reverb = new Tone.Reverb({
-                decay: 4,
-                preDelay: 0.01,
-                wet: 0.4
-            }).toDestination();
+    <div class="message-card" id="messageCard" aria-live="polite">
+      <div class="msg-title" id="msgTitle">—</div>
+      <div class="msg-body" id="msgBody"> </div>
+      <div class="signature" id="msgSign"> </div>
+      <div class="controls">
+        <button class="link-btn" id="replayBtn">Replay</button>
+        <button class="link-btn" id="changeBtn">Change Code</button>
+      </div>
+    </div>
 
-            const synth = new Tone.PolySynth(Tone.Synth, {
-                oscillator: { type: "fatsawtooth" },
-                envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.5 },
-                volume: -15
-            }).connect(reverb);
-            
-            const bgMusic = new Tone.Loop(time => {
-                const notes = ["C4", "E4", "G4", "A4", "G4", "E4"];
-                const note = notes[Math.floor(Math.random() * notes.length)];
-                synth.triggerAttackRelease(note, "8n", time);
-            }, "1n");
-            bgMusic.humanize = true;
+  </div>
 
+  <div class="glow" aria-hidden="true"></div>
 
-            // --- Starry Background ---
-            let stars = [];
-            let canvasSize = { w: 0, h: 0 };
+  <!-- Celebration layers -->
+  <div class="celebrate" id="celebrate">
+    <canvas id="mandala"></canvas>
+    <canvas id="fireworks-canvas"></canvas>
+  </div>
 
-            function setupStars() {
-                canvasSize.w = window.innerWidth;
-                canvasSize.h = window.innerHeight;
-                starField.width = canvasSize.w;
-                starField.height = canvasSize.h;
-                stars = [];
-                for (let i = 0; i < 200; i++) {
-                    stars.push({
-                        x: Math.random() * canvasSize.w,
-                        y: Math.random() * canvasSize.h,
-                        size: Math.random() * 1.5 + 0.5,
-                        opacity: Math.random() * 0.5 + 0.5,
-                        twinkleSpeed: Math.random() * 0.02
-                    });
-                }
-            }
+</div>
 
-            function drawStars() {
-                starCtx.clearRect(0, 0, canvasSize.w, canvasSize.h);
-                stars.forEach(star => {
-                    star.opacity += Math.sin(Date.now() * star.twinkleSpeed) * 0.005;
-                    star.opacity = Math.max(0.2, Math.min(1, star.opacity));
+<script>
+/* ---------- Configuration / Messages ---------- */
+const MESSAGES = {
+  IITD: {
+    title: "Happy Diwali!",
+    body: `Wishing you a festival filled with light, peace, and new beginnings.
+May the warmth of every diya bring happiness and calm to your days,
+and may this Diwali light up your path with hope and positivity.`,
+    sign: "— Best wishes, Aman Balara",
+    accent: "#ffd166"
+  },
+  SIR: {
+    title: "Happy Diwali!",
+    body: `This festival always reminds me of those who’ve been a guiding light — and you’ve truly been one.
+Your words and support have meant more than I could ever say.
+Wishing you endless light, peace, and happiness this Diwali.`,
+    sign: "— Your junior, Aman Balara",
+    accent: "#b5651d"
+  },
+  SWEETHEART: {
+    title: "Happy Diwali, my friend!",
+    body: `Here’s to all the crazy laughs, the late-night talks, and the quiet support that means more than we say.
+You’re a real one — I’m grateful for every moment. Let’s keep shining, no matter what.`,
+    sign: "— Your friend, Aman Balara",
+    accent: "#ff7aa2"
+  },
+  VINDY: {
+    title: "Happy Diwali, my hostel family!",
+    body: `This Diwali feels special because of the people around me — you all.
+From late-night talks to random laughter echoing through the corridors, every moment has turned this hostel into something that feels like home.
+Even when things get tough, having you all around makes everything brighter. Here’s to more memories, more smiles, and more light together.`,
+    sign: "— Your brother, Aman Balara",
+    accent: "#ff8a3d"
+  }
+};
 
-                    starCtx.beginPath();
-                    starCtx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-                    starCtx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
-                    starCtx.fill();
-                });
-                requestAnimationFrame(drawStars);
-            }
-            
-            window.addEventListener('resize', setupStars);
-            setupStars();
-            drawStars();
+/* Accept codes case-insensitively; map possible input to keys */
+function normalizeCode(s){
+  if(!s) return '';
+  return s.trim().toUpperCase().replace(/\s+/g,''); // remove spaces so 'sweet heart' -> SWEETHEART
+}
 
-            // --- Diya Lighting Logic ---
-            diyas.forEach(diya => {
-                diya.addEventListener('click', async () => {
-                    if (!audioStarted) {
-                        await Tone.start();
-                        console.log("Audio context started");
-                        audioStarted = true;
-                    }
-                
-                    if (!diya.classList.contains('lit')) {
-                        diya.classList.add('lit');
-                        
-                        const flame = document.createElement('div');
-                        flame.className = 'flame';
-                        diya.appendChild(flame);
-                        
-                        synth.triggerAttackRelease("C5", "8n");
-                        litCount++;
+/* ---------- Stars background ---------- */
+const starsCanvas = document.getElementById('stars');
+const sCtx = starsCanvas.getContext('2d');
+let stars = [];
+function resizeStars(){starsCanvas.width = innerWidth; starsCanvas.height = innerHeight; stars=[]; for(let i=0;i<220;i++){stars.push({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.6+0.3,alpha:Math.random()*0.7+0.15,spd:Math.random()*0.02+0.002})}}
+function drawStars(t){
+  sCtx.clearRect(0,0,starsCanvas.width,starsCanvas.height);
+  for(let st of stars){
+    st.alpha += Math.sin(t*st.spd)*0.007;
+    st.alpha = Math.max(0.08, Math.min(1, st.alpha));
+    sCtx.beginPath();
+    sCtx.fillStyle = `rgba(255,255,255,${st.alpha})`;
+    sCtx.arc(st.x, st.y, st.r, 0, Math.PI*2);
+    sCtx.fill();
+  }
+  requestAnimationFrame(drawStars);
+}
+addEventListener('resize', resizeStars);
+resizeStars(); requestAnimationFrame(drawStars);
 
-                        const progress = litCount / totalDiyas;
-                        body.style.backgroundColor = `rgb(${2 + 24 * progress}, ${2 + 24 * progress}, ${8 + 34 * progress})`;
-                    }
+/* ---------- Audio setup (Tone.js) ---------- */
+let audioStarted=false;
+const reverb = new Tone.Reverb({decay:3,preDelay:0.01,wet:0.38}).toDestination();
+const synth = new Tone.PolySynth(Tone.Synth, {oscillator:{type:"fatsawtooth"},envelope:{attack:0.01,decay:0.18,sustain:0.12,release:0.6},volume:-18}).connect(reverb);
+const loop = new Tone.Loop(time=>{
+  const notes=["C4","E4","G4","A4","G4","E4"];
+  const n = notes[Math.floor(Math.random()*notes.length)];
+  synth.triggerAttackRelease(n,"8n",time);
+},"1n");
+loop.humanize=true;
 
-                    if (litCount === totalDiyas && !body.classList.contains('light')) {
-                        body.classList.add('light');
-                        instructions.style.opacity = '0';
-                        
-                        // Start the main celebration after a short delay
-                        setTimeout(() => {
-                           body.classList.add('fireworks-active');
-                           body.classList.add('rangoli-active');
+/* Utility: start audio on first user gesture */
+async function ensureAudio(){
+  if(!audioStarted){
+    await Tone.start();
+    audioStarted=true;
+    Tone.Transport.start();
+    loop.start(0);
+  }
+}
 
-                           if (Tone.Transport.state !== 'started') {
-                               Tone.Transport.start();
-                               bgMusic.start(0);
-                           }
-                           // More frequent fireworks
-                           setInterval(createFirework, 600 + Math.random() * 800);
-                        }, 1800);
+/* ---------- Diya interaction ---------- */
+const diyas = Array.from(document.querySelectorAll('.diya'));
+let litCount = 0;
+const totalDiyas = diyas.length;
+const panel = document.getElementById('panel');
+const celebrate = document.getElementById('celebrate');
+const mandalaCanvas = document.getElementById('mandala');
+const fwCanvas = document.getElementById('fireworks-canvas');
+const msgCard = document.getElementById('messageCard');
+const msgTitle = document.getElementById('msgTitle');
+const msgBody = document.getElementById('msgBody');
+const msgSign = document.getElementById('msgSign');
+const codeInput = document.getElementById('codeInput');
+const unlockBtn = document.getElementById('unlockBtn');
+const replayBtn = document.getElementById('replayBtn');
+const changeBtn = document.getElementById('changeBtn');
 
-                        // Show the message after the rangoli and fireworks have had time to display
-                        setTimeout(() => {
-                            wishMessage.classList.add('visible');
-                        }, 6800); // 1.8s base delay + 5s for the show
-                    }
-                });
-            });
+function lightDiya(diya){
+  if(diya.classList.contains('lit')) return;
+  diya.classList.add('lit');
+  // add small chime
+  try { synth.triggerAttackRelease("C5","8n"); } catch(e){}
+  litCount++;
+  // subtle background warm shift
+  const p = litCount/totalDiyas;
+  document.body.style.background = `radial-gradient(circle at 50% 30%, rgba(255,160,60,${0.02 + 0.06*p}), transparent 18%), ${p>0?`linear-gradient(180deg, rgba(${2+40*p},${6+40*p},${20+40*p},1) 0%, var(--bg-dark) 100%)`:'var(--bg-dark)'}`;
+  if(litCount===totalDiyas){
+    // show celebration after a small delay
+    setTimeout(()=>startCelebration(), 900);
+  }
+}
 
-            // --- Dynamic Fireworks ---
-            function createFirework() {
-                const x = Math.random() * window.innerWidth;
-                const y = Math.random() * window.innerHeight * 0.7;
-                const hue = Math.random() * 360;
-                const particleCount = 60 + Math.random() * 60; // More particles
-                
-                for(let i = 0; i < particleCount; i++) {
-                    createParticle(x, y, hue);
-                }
-            }
+diyas.forEach(d=>{
+  d.addEventListener('click', async (e)=>{
+    await ensureAudio();
+    lightDiya(d);
+  });
+  // keyboard accessibility
+  d.addEventListener('keydown', async (ev)=>{
+    if(ev.key === 'Enter' || ev.key === ' '){
+      ev.preventDefault();
+      await ensureAudio();
+      lightDiya(d);
+    }
+  });
+});
 
-            function createParticle(x, y, hue) {
-                const particle = document.createElement('div');
-                particle.className = 'particle';
-                
-                const size = Math.random() * 3 + 1.5;
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
+/* ---------- Celebration: Mandala + Fireworks ---------- */
+const mCtx = mandalaCanvas.getContext('2d');
+const fCtx = fwCanvas.getContext('2d');
 
-                const angle = Math.random() * Math.PI * 2;
-                const distance = Math.random() * 180 + 50; // Bigger bursts
-                const translateX = Math.cos(angle) * distance;
-                const translateY = Math.sin(angle) * distance;
-                
-                particle.style.backgroundColor = `hsl(${hue + (Math.random() * 60 - 30)}, 100%, ${60 + Math.random() * 20}%)`;
-                particle.style.left = `${x}px`;
-                particle.style.top = `${y}px`;
+function resizeCanvasSize(){
+  mandalaCanvas.width = mandalaCanvas.clientWidth * devicePixelRatio;
+  mandalaCanvas.height = mandalaCanvas.clientHeight * devicePixelRatio;
+  fwCanvas.width = innerWidth * devicePixelRatio;
+  fwCanvas.height = innerHeight * devicePixelRatio;
+  fwCanvas.style.width = innerWidth+'px';
+  fwCanvas.style.height = innerHeight+'px';
+  fCtx.scale(devicePixelRatio, devicePixelRatio);
+  mCtx.scale(devicePixelRatio, devicePixelRatio);
+}
+addEventListener('resize', resizeCanvasSize);
+resizeCanvasSize();
 
-                const animation = particle.animate([
-                    { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-                    { transform: `translate(${translateX}px, ${translateY}px) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 1200 + Math.random() * 600,
-                    easing: 'cubic-bezier(0.1, 0.5, 0.5, 1)'
-                });
-                
-                animation.onfinish = () => particle.remove();
-                
-                fireworksContainer.appendChild(particle);
-            }
-        });
-    </script>
+let mandalaTime = 0;
+function drawMandala(){
+  const w = mandalaCanvas.clientWidth;
+  const h = mandalaCanvas.clientHeight;
+  mCtx.clearRect(0,0,mandalaCanvas.width, mandalaCanvas.height);
+  const cx = mandalaCanvas.width/ (2*devicePixelRatio);
+  const cy = mandalaCanvas.height/ (2*devicePixelRatio);
+  const t = mandalaTime * 0.002;
+  const rings = 7;
+  for(let r=0;r<rings;r++){
+    const rr = 10 + r * (Math.min(w,h)/ (rings*2));
+    const petals = 6 + r*2;
+    const hue = (60 + r*30 + (t*40)) % 360;
+    mCtx.save();
+    mCtx.translate(cx,cy);
+    mCtx.globalAlpha = 0.14 + 0.06*Math.sin(t + r);
+    mCtx.fillStyle = `hsl(${hue}, 85%, ${50 - r*3}%)`;
+    for(let p=0;p<petals;p++){
+      const ang = p*(Math.PI*2/petals) + t*0.3*(r%2?1:-1);
+      mCtx.beginPath();
+      const x1 = Math.cos(ang)*(rr);
+      const y1 = Math.sin(ang)*(rr);
+      const x2 = Math.cos(ang+0.18)*(rr*1.6);
+      const y2 = Math.sin(ang+0.18)*(rr*1.6);
+      mCtx.moveTo(0,0);
+      mCtx.quadraticCurveTo(x1*0.6,y1*0.6,x2,y2);
+      mCtx.quadraticCurveTo(x1*0.6,y1*0.6,0,0);
+      mCtx.closePath();
+      mCtx.fill();
+    }
+    mCtx.restore();
+  }
+  mandalaTime++;
+  requestAnimationFrame(drawMandala);
+}
+
+/* Fireworks particles */
+let particles = [];
+function spawnFirework(x,y){
+  const count = 40 + Math.floor(Math.random()*40);
+  const baseHue = Math.floor(Math.random()*360);
+  for(let i=0;i<count;i++){
+    const angle = Math.random()*Math.PI*2;
+    const speed = 1 + Math.random()*4;
+    const life = 900 + Math.random()*700;
+    particles.push({
+      x,y,
+      vx: Math.cos(angle)*speed + (Math.random()*0.6-0.3),
+      vy: Math.sin(angle)*speed + (Math.random()*0.6-0.3),
+      life,
+      age:0,
+      size:1 + Math.random()*3,
+      hue: (baseHue + (Math.random()*60-30))%360
+    });
+  }
+}
+function updateFireworks(dt){
+  // clear
+  fCtx.clearRect(0,0,fwCanvas.width, fwCanvas.height);
+  // draw faded trails
+  fCtx.fillStyle = 'rgba(0,0,0,0.12)';
+  fCtx.fillRect(0,0,fwCanvas.width/devicePixelRatio, fwCanvas.height/devicePixelRatio);
+  for(let i=particles.length-1;i>=0;i--){
+    const p = particles[i];
+    p.age += dt;
+    if(p.age >= p.life){ particles.splice(i,1); continue; }
+    // gravity
+    p.vy += 0.02;
+    p.x += p.vx;
+    p.y += p.vy;
+    // draw
+    const alpha = 1 - (p.age / p.life);
+    fCtx.beginPath();
+    fCtx.fillStyle = `hsla(${p.hue}, 85%, 55%, ${alpha})`;
+    fCtx.arc(p.x, p.y, p.size * (0.6 + alpha*0.8), 0, Math.PI*2);
+    fCtx.fill();
+  }
+}
+
+let lastTime = performance.now();
+function fireworkLoop(now){
+  const dt = now - lastTime;
+  updateFireworks(dt);
+  lastTime = now;
+  requestAnimationFrame(fireworkLoop);
+}
+
+/* Launch random fireworks while active */
+let fwInterval = null;
+function startRandomFireworks(){
+  if(fwInterval) clearInterval(fwInterval);
+  fwInterval = setInterval(()=> {
+    const x = Math.random()*innerWidth;
+    const y = 100 + Math.random()*(innerHeight*0.6);
+    spawnFirework(x,y);
+  }, 600 + Math.random()*800);
+}
+
+/* ---------- Activate celebration ---------- */
+function startCelebration(){
+  celebrate.classList.add('active');
+  // show mandala canvas and start loops
+  resizeCanvasSize();
+  drawMandala();
+  requestAnimationFrame(fireworkLoop);
+  startRandomFireworks();
+  // fade in code panel
+  setTimeout(()=>{ panel.style.opacity = '1'; panel.style.transform = 'none'; codeInput.focus(); }, 700);
+}
+
+/* ---------- Unlock / Code Handling ---------- */
+function showMessage(key){
+  const m = MESSAGES[key];
+  if(!m) return;
+  // apply accent color to title
+  msgTitle.textContent = m.title;
+  msgBody.textContent = m.body;
+  msgSign.textContent = m.sign;
+  // show the card
+  msgCard.classList.add('show');
+  // subtle accent glow
+  msgTitle.style.color = m.accent;
+  // scroll into view (mobile)
+  msgCard.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+unlockBtn.addEventListener('click', handleUnlock);
+codeInput.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ handleUnlock(); } });
+
+function handleUnlock(){
+  const raw = codeInput.value || '';
+  const code = normalizeCode(raw);
+  // map code to our keys
+  const mapping = {'IITD':'IITD','SIR':'SIR','SWEETHEART':'SWEETHEART','VINDY':'VINDY'};
+  const found = mapping[code];
+  if(found){
+    // reveal message
+    showMessage(found);
+    // subtle celebration boost
+    for(let i=0;i<8;i++){
+      const x = innerWidth/2 + (Math.random()-0.5)*400;
+      const y = innerHeight/2 + (Math.random()-0.5)*200;
+      spawnFirework(x,y);
+    }
+  } else {
+    // shake input
+    const wrap = document.querySelector('.input-wrap');
+    wrap.animate([{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:420});
+    codeInput.focus();
+  }
+}
+
+/* Replay & Change */
+replayBtn.addEventListener('click', ()=>{
+  // reset all
+  msgCard.classList.remove('show');
+  panel.style.opacity = '0'; panel.style.transform = 'translateY(12px)';
+  celebrate.classList.remove('active');
+  // clear particles
+  particles = [];
+  if(fwInterval) clearInterval(fwInterval);
+  // reset diyas
+  diyas.forEach(d=>d.classList.remove('lit'));
+  litCount = 0;
+  // reset background
+  document.body.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bg-dark');
+  setTimeout(()=>{ window.scrollTo({top:0, behavior:'smooth'}); }, 50);
+});
+changeBtn.addEventListener('click', ()=>{
+  msgCard.classList.remove('show');
+  codeInput.value = '';
+  codeInput.focus();
+});
+
+/* ---------- initialize small auto-fire for engagement after all lit and small launch ---------- */
+(function init(){
+  // friendly hint: panel hidden until all diyas lit; however we keep the input but hidden
+  panel.style.opacity = '0'; panel.style.transform = 'translateY(12px)';
+})();
+
+/* ---------- Main animation tick for mandala & fireworks (particles update) ---------- */
+(function particleTicker(){
+  const now = performance.now();
+  const dt = now - lastTime;
+  // updateFireworks handles drawing and fade
+  lastTime = now;
+  requestAnimationFrame(particleTicker);
+})();
+
+/* ---------- spawn some initial soft fireworks when mandala active - handled via startRandomFireworks ---------- */
+
+/* ---------- Accessibility: focus styles ---------- */
+document.addEventListener('keyup', (e)=>{
+  if(e.key === 'Escape'){
+    // if message visible, hide else replay
+    if(msgCard.classList.contains('show')){ msgCard.classList.remove('show'); }
+  }
+});
+
+/* ---------- small touch-friendly hint: guide first click on first diya ---------- */
+setTimeout(()=> {
+  if(!diyas[0].classList.contains('lit')){
+    diyas[0].animate([{transform:'translateY(0)'},{transform:'translateY(-10px)'},{transform:'translateY(0)'}],{duration:1200,iterations:2});
+  }
+}, 1000);
+
+/* ---------- ensure canvas sizes correct ---------- */
+addEventListener('load', resizeCanvasSize);
+</script>
 </body>
 </html>
-
